@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>carvi — Carpooling simple y seguro</title>
+  <meta name="description" content="carvi es la forma simple y segura de compartir auto: ahorrá costos, ganá tiempo y reducí tu huella de carbono.">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="assets/logo-carvi.png" />
+</head>
+
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="#home" aria-label="carvi inicio">
+        <img src="fotoscarvi/carvisinfondo1.jpg" alt="Logo carvi" />
+        <span>carvi</span>
+      </a>
+
+      <nav class="nav" aria-label="Principal">
+        <button class="nav__toggle" aria-expanded="false" aria-controls="nav-menu" id="menuBtn">
+          <span class="sr-only">Abrir menú</span>
+          ☰
+        </button>
+        <ul id="nav-menu" class="nav__list">
+          <li><a href="#que-es">Qué es</a></li>
+          <li><a href="#como-funciona">Cómo funciona</a></li>
+          <li><a href="#beneficios">Beneficios</a></li>
+          <li><a href="#seguridad">Seguridad</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#cta" class="btn btn--small">Unirme</a></li>
+        </ul>
+      </nav>
+
+      <button class="mode-toggle" id="modeToggle" aria-label="Cambiar tema">🌗</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main id="home">
+    <section class="hero container">
+      <div class="hero__content">
+        <h1>Compartí tu viaje. <span class="accent">Hacé que rinda.</span></h1>
+        <p class="lead">
+          <strong>carvi</strong> es una app de <em>carpooling</em> (compartir auto) que conecta
+          conductores con asientos libres y pasajeros con el mismo destino. Ahorrás costos,
+          reducís congestión y ayudás al planeta.
+        </p>
+        <div class="hero__actions">
+          <a href="#cta" class="btn">Unirme a la lista de espera</a>
+          <a href="#como-funciona" class="btn btn--ghost">Ver cómo funciona</a>
+        </div>
+        <ul class="badges">
+          <li>💸 Ahorro</li>
+          <li>⏱️ Menos tiempo de viaje</li>
+          <li>🌱 Menor huella de carbono</li>
+        </ul>
+      </div>
+      <div class="hero__art">
+        <img src="fotoscarvi/carvisinfondo1.jpg" alt="Isotipo carvi" class="hero__logo" />
+      </div>
+    </section>
+
+    <!-- Qué es -->
+    <section id="que-es" class="section container">
+      <h2>¿Qué es el carpooling?</h2>
+      <p>
+        El <strong>carpooling</strong> consiste en compartir un mismo viaje en auto entre personas
+        que se dirigen a destinos cercanos. Con <strong>carvi</strong>, coordinás horarios y puntos
+        de encuentro con total transparencia, compartiendo los gastos del viaje de forma clara.
+      </p>
+      <div class="cards3">
+        <article class="card">
+          <h3>Transparente</h3>
+          <p>Precios estimados antes de confirmar. Sin sorpresas.</p>
+        </article>
+        <article class="card">
+          <h3>Flexible</h3>
+          <p>Sumate como conductor o pasajero cuando lo necesites.</p>
+        </article>
+        <article class="card">
+          <h3>Sustentable</h3>
+          <p>Menos autos, menos emisiones, más ciudad para todos.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section id="como-funciona" class="section section--alt">
+      <div class="container">
+        <h2>¿Cómo funciona carvi?</h2>
+        <ol class="steps">
+          <li><span class="step-number">1</span> Creás tu perfil con verificación.</li>
+          <li><span class="step-number">2</span> Indicás origen, destino y horario.</li>
+          <li><span class="step-number">3</span> Elegís compartir como <strong>conductor</strong> o <strong>pasajero</strong>.</li>
+          <li><span class="step-number">4</span> Match automático con quienes van para el mismo lado.</li>
+          <li><span class="step-number">5</span> Califican el viaje para mantener la calidad de la comunidad.</li>
+        </ol>
+        <div class="cta-inline">
+          <a href="#cta" class="btn">Quiero probar carvi</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Beneficios -->
+    <section id="beneficios" class="section container">
+      <h2>Beneficios clave</h2>
+      <div class="grid2">
+        <div>
+          <ul class="checklist">
+            <li>Hasta <strong>50% menos</strong> de costo por viaje compartido.</li>
+            <li>Rutas optimizadas con paradas seguras.</li>
+            <li>Pagos simples y divididos automáticamente.</li>
+            <li>Chat in-app y horarios favoritos.</li>
+          </ul>
+        </div>
+        <div class="highlight">
+          <p class="kpi"><span id="co2Saved">0</span> kg de CO₂ evitados*</p>
+          <small>*Cálculo demo acumulado por la comunidad (ejemplo).</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Seguridad -->
+    <section id="seguridad" class="section section--alt">
+      <div class="container">
+        <h2>Seguridad primero</h2>
+        <div class="cards3">
+          <article class="card">
+            <h3>Perfiles verificados</h3>
+            <p>Verificación por email y número de teléfono.</p>
+          </article>
+          <article class="card">
+            <h3>Calificaciones y reseñas</h3>
+            <p>Historial de viajes visible y sistema de reputación.</p>
+          </article>
+          <article class="card">
+            <h3>Rutas y contactos</h3>
+            <p>Compartí tu viaje en tiempo real con un contacto de confianza.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / Captura -->
+    <section id="cta" class="section container">
+      <h2>Sumate a la lista de espera</h2>
+      <p>Dejanos tu email y te avisamos cuando carvi esté disponible en tu zona.</p>
+      <form id="waitlistForm" class="form" novalidate>
+        <label class="sr-only" for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="tu@email.com" required />
+        <button class="btn" type="submit">Unirme</button>
+        <p class="form__msg" id="formMsg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section section--alt">
+      <div class="container">
+        <h2>Preguntas frecuentes</h2>
+        <details>
+          <summary>¿Compartir auto es legal?</summary>
+          <p>Sí: compartir gastos entre particulares está permitido. carvi facilita la coordinación y el prorrateo.</p>
+        </details>
+        <details>
+          <summary>¿Cómo se dividen los costos?</summary>
+          <p>La app estima combustible/peajes de la ruta y los divide entre los ocupantes.</p>
+        </details>
+        <details>
+          <summary>¿Necesito seguro especial?</summary>
+          <p>En general no; recomendamos revisar tu póliza. carvi no reemplaza el seguro obligatorio.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand brand--footer" href="#home">
+          <img src="fotoscarvi/carvisinfondo1.jpg" alt="Logo carvi" />
+          <span>carvi</span>
+        </a>
+        <p class="muted">Carpooling simple y seguro. © <span id="year"></span> carvi.</p>
+      </div>
+      <nav aria-label="Footer">
+        <ul class="footer-links">
+          <li><a href="#que-es">Qué es</a></li>
+          <li><a href="#seguridad">Seguridad</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
