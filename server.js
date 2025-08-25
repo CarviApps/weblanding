@@ -1,5 +1,5 @@
-// server.js — Carvi con Postgres en Render
-console.log("➡️ Iniciando servidor Carvi con Postgres...");
+// server.js — Carvi (Render + Postgres)
+console.log("➡️ Iniciando servidor Carvi...");
 
 const path = require('path');
 const express = require('express');
@@ -12,9 +12,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// ---------- BD (Postgres en Render) ----------
+// ---------- BD (Postgres) ----------
 const pool = new Pool({
-  connectionString: "postgresql://carviuser:R9SnIY4LyhBjqRnTZ5jrWVHAKXZF4ssv@dpg-d2mala9r0fns73dbnnjg-a.oregon-postgres.render.com/carvidb", 
+  connectionString: process.env.DATABASE_URL,   // 👈 se lee de ENV en Render
   ssl: { rejectUnauthorized: false }
 });
 
@@ -29,7 +29,7 @@ const pool = new Pool({
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log("✅ Tabla waitlist lista en Postgres");
+    console.log("✅ Tabla waitlist lista");
   } catch (err) {
     console.error("❌ Error inicializando Postgres:", err);
   }
@@ -38,7 +38,6 @@ const pool = new Pool({
 // ---------- Archivos estáticos ----------
 const PUBLIC_DIR = __dirname;
 app.use(express.static(PUBLIC_DIR));
-
 app.get('/', (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
@@ -49,12 +48,11 @@ app.post('/api/waitlist', async (req, res) => {
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ ok:false, msg:'Email inválido' });
   }
-
   try {
     await pool.query('INSERT INTO waitlist (email) VALUES ($1)', [email.trim().toLowerCase()]);
     res.json({ ok:true, msg:'¡Gracias por sumarte!' });
   } catch (err) {
-    if (String(err.message).includes('duplicate key')) {
+    if (String(err.message).toLowerCase().includes('duplicate')) {
       return res.status(409).json({ ok:false, msg:'Ese email ya está registrado' });
     }
     console.error('❌ Error insert:', err);
@@ -70,6 +68,9 @@ app.get('/api/waitlist', async (_req, res) => {
     res.status(500).json({ ok:false, msg:'Error al leer DB' });
   }
 });
+
+// Health check opcional
+app.get('/health', (_req, res) => res.json({ ok: true }));
 
 // ---------- Listen ----------
 app.listen(PORT, () => {

@@ -31,41 +31,43 @@ modeToggle?.addEventListener('click', () => {
   localStorage.setItem('carvi-theme', root.classList.contains('dark') ? 'dark' : 'light');
 });
 
-// --- Envío del email a la API real ---
+// Base de la API: mismo origen (local o Render). Fallback si abrís el HTML desde otro dominio.
+const API_BASE =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname.endsWith('onrender.com')
+    ? ''    // mismo origen
+    : 'https://weblanding.onrender.com';  // fallback opcional
+
 const form = document.getElementById('waitlistForm');
-const msg = document.getElementById('formMsg');
-const emailInput = document.getElementById('email');
+const msg  = document.getElementById('formMsg');
 
-form?.addEventListener('submit', async (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = emailInput?.value?.trim();
+  const email = (document.getElementById('email')?.value || '').trim();
 
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
     msg.textContent = 'Por favor, ingresá un email válido.';
     msg.style.color = '#cc3d3d';
     return;
   }
 
   try {
-    console.log('➡️ POST /api/waitlist', email);
-    const r = await fetch('/api/waitlist', {
+    const res = await fetch(`${API_BASE}/api/waitlist`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    const data = await r.json();
-    console.log('⬅️ Respuesta', r.status, data);
 
-    if (!r.ok) throw new Error(data.msg || 'No se pudo guardar');
-    msg.textContent = data.msg || '¡Gracias! Te avisaremos cuando lancemos.';
-    msg.style.color = '';
-    form.reset();
+    const data = await res.json();
+    msg.textContent = data.msg || (res.ok ? '¡Gracias!' : 'Hubo un error.');
+    msg.style.color = res.ok ? 'inherit' : '#cc3d3d';
+    if (res.ok) form.reset();
   } catch (err) {
-    console.error('❌ Error front:', err);
-    msg.textContent = 'No pudimos registrar tu email.';
+    msg.textContent = 'Error de conexión.';
     msg.style.color = '#cc3d3d';
   }
 });
+
 
 
 // KPI de CO2 (contador simple de ejemplo)
