@@ -31,25 +31,42 @@ modeToggle?.addEventListener('click', () => {
   localStorage.setItem('carvi-theme', root.classList.contains('dark') ? 'dark' : 'light');
 });
 
-// Espera de email (demo sin backend)
+// --- Envío del email a la API real ---
 const form = document.getElementById('waitlistForm');
 const msg = document.getElementById('formMsg');
-form?.addEventListener('submit', (e) => {
+const emailInput = document.getElementById('email');
+
+form?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = (document.getElementById('email') || {}).value?.trim();
+  const email = emailInput?.value?.trim();
+
   if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
     msg.textContent = 'Por favor, ingresá un email válido.';
     msg.style.color = '#cc3d3d';
     return;
   }
-  // Guardamos en localStorage a modo demo
-  const current = JSON.parse(localStorage.getItem('carvi-waitlist') || '[]');
-  current.push({ email, ts: Date.now() });
-  localStorage.setItem('carvi-waitlist', JSON.stringify(current));
-  msg.textContent = '¡Gracias! Te avisaremos cuando lancemos en tu zona.';
-  msg.style.color = 'inherit';
-  form.reset();
+
+  try {
+    console.log('➡️ POST /api/waitlist', email);
+    const r = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await r.json();
+    console.log('⬅️ Respuesta', r.status, data);
+
+    if (!r.ok) throw new Error(data.msg || 'No se pudo guardar');
+    msg.textContent = data.msg || '¡Gracias! Te avisaremos cuando lancemos.';
+    msg.style.color = '';
+    form.reset();
+  } catch (err) {
+    console.error('❌ Error front:', err);
+    msg.textContent = 'No pudimos registrar tu email.';
+    msg.style.color = '#cc3d3d';
+  }
 });
+
 
 // KPI de CO2 (contador simple de ejemplo)
 const co2El = document.getElementById('co2Saved');
