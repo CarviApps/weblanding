@@ -36,15 +36,18 @@ npm run build    # typecheck + build a dist/
 npm run preview  # sirve dist/
 ```
 
-## Deploy en Vercel
+## Deploy
 
-El proyecto vive en un subdirectorio, así que hay que apuntarle a Vercel:
+En línea: **https://nutritracker-psi.vercel.app**
 
-1. Importá el repositorio en Vercel.
-2. En **Root Directory** elegí `nutritracker`.
-3. El resto lo toma de `vercel.json` (framework Vite, build `npm run build`, salida `dist`).
+El proyecto de Vercel (`nutritracker`, team `carvi1v`) ya está linkeado a este
+repositorio con **Root Directory = `nutritracker`**, así que la landing de Carvi de la
+raíz queda fuera del build. El resto de la configuración sale de `vercel.json`:
+framework Vite, `npm run build`, salida en `dist`.
 
-Desde la CLI, parado en esta carpeta: `npx vercel --prod`.
+Cada push genera un deployment automático. La rama de producción es `main`: los pushes a
+otras ramas crean *preview deployments* con su propia URL, y la URL de producción de
+arriba se actualiza al mergear a `main`.
 
 ## Aviso
 
