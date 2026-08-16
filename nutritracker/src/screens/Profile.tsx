@@ -174,6 +174,9 @@ export default function Profile({
         </button>
       </div>
 
+      <h2 className="section-title">Sincronización</h2>
+      <AccountCard toast={toast} />
+
       <h2 className="section-title">
         Tus datos guardados
         <small>
@@ -182,8 +185,8 @@ export default function Profile({
       </h2>
       <div className="card">
         <p className="muted" style={{ marginBottom: 12 }}>
-          Todo se guarda solo en este navegador. Si borrás los datos del sitio o cambiás de
-          teléfono, se pierde: exportá una copia de vez en cuando.
+          Una copia siempre queda en este dispositivo, así la app funciona sin señal. El
+          respaldo en archivo sirve para llevarte todo a otro lado.
         </p>
         <div className="row-btns" style={{ marginTop: 0 }}>
           <button className="btn ghost" onClick={() => exportData(data)}>
@@ -253,6 +256,125 @@ export default function Profile({
       <p className="muted" style={{ marginTop: 22, textAlign: "center" }}>
         Plan iniciado el {prettyDate(profile.startDate)} · {profile.weeks} semanas
       </p>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------- */
+
+const LOGIN_ERRORS: Record<string, string> = {
+  wrong: "Contraseña incorrecta.",
+  unconfigured: "La sincronización no está configurada en el servidor.",
+  error: "No pude conectarme. Probá de nuevo.",
+};
+
+function AccountCard({ toast }: { toast: (m: string) => void }) {
+  const { syncConfigured, signedIn, syncState, lastSyncedAt, signIn, signOut, syncNow } =
+    useStore();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  if (!syncConfigured) {
+    return (
+      <div className="card">
+        <p className="muted">
+          La sincronización no está activa. Los datos viven sólo en este dispositivo. Para
+          verlos también en la web hay que configurar la contraseña y el almacenamiento en
+          Vercel (está explicado en el README del proyecto).
+        </p>
+      </div>
+    );
+  }
+
+  if (!signedIn) {
+    return (
+      <div className="card">
+        <p className="muted" style={{ marginBottom: 12 }}>
+          Entrá con tu contraseña para que este dispositivo comparta los datos con los demás.
+        </p>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!password || busy) return;
+            setBusy(true);
+            setError("");
+            const result = await signIn(password);
+            setBusy(false);
+            if (result === "ok") {
+              setPassword("");
+              toast("Sincronización activada");
+            } else {
+              setPassword("");
+              setError(LOGIN_ERRORS[result] ?? LOGIN_ERRORS.error);
+            }
+          }}
+        >
+          <Field label="Contraseña">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </Field>
+          {error && (
+            <p className="muted" style={{ color: "var(--danger)", marginTop: 10 }}>
+              {error}
+            </p>
+          )}
+          <button className="btn accent" style={{ marginTop: 12 }} disabled={busy || !password}>
+            {busy ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  const estado =
+    syncState === "syncing"
+      ? "Sincronizando..."
+      : syncState === "error"
+        ? "Sin conexión con el servidor"
+        : lastSyncedAt
+          ? `Al día · última vez ${new Date(lastSyncedAt).toLocaleTimeString("es-AR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`
+          : "Al día";
+
+  return (
+    <div className="card">
+      <div className="summary-line">
+        <span>Estado</span>
+        <b style={{ color: syncState === "error" ? "var(--danger)" : "var(--accent)" }}>
+          {estado}
+        </b>
+      </div>
+      <p className="muted" style={{ marginTop: 12 }}>
+        Los cambios se suben solos y se bajan al volver a abrir la app. Si editás en dos
+        aparatos a la vez, queda la versión guardada más tarde.
+      </p>
+      <div className="row-btns">
+        <button
+          className="btn ghost"
+          onClick={async () => {
+            await syncNow();
+            toast("Sincronizado");
+          }}
+        >
+          Sincronizar ahora
+        </button>
+        <button
+          className="btn danger"
+          onClick={() => {
+            signOut();
+            toast("Saliste de la sincronización");
+          }}
+        >
+          Salir
+        </button>
+      </div>
     </div>
   );
 }

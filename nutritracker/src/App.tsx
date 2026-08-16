@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StoreProvider, useStore } from "./state/store";
 import Onboarding from "./screens/Onboarding";
+import SignIn from "./screens/SignIn";
 import Today from "./screens/Today";
 import Meals from "./screens/Meals";
 import Gym from "./screens/Gym";
@@ -16,6 +17,7 @@ import {
   IconUser,
 } from "./components/icons";
 import { prettyDateLong, todayISO } from "./lib/date";
+import { hasSkipped } from "./lib/sync";
 import type { Tab } from "./lib/types";
 
 const THEME_KEY = "nutritracker:theme";
@@ -53,8 +55,21 @@ function useTheme() {
   return [theme, setTheme] as const;
 }
 
+function SyncDot() {
+  const { signedIn, syncState } = useStore();
+  if (!signedIn) return null;
+  const label =
+    syncState === "syncing"
+      ? "Sincronizando"
+      : syncState === "error"
+        ? "Sin conexión con el servidor"
+        : "Sincronizado";
+  return <span className={`sync-dot ${syncState}`} title={label} aria-label={label} />;
+}
+
 function Shell() {
-  const { profile, setData } = useStore();
+  const { profile, setData, ready, syncConfigured, signedIn } = useStore();
+  const [skipped, setSkipped] = useState(() => hasSkipped());
   const [tab, setTab] = useState<Tab>("today");
   const [theme, setTheme] = useTheme();
   const [toastMsg, setToastMsg] = useState("");
@@ -73,6 +88,14 @@ function Shell() {
     window.scrollTo({ top: 0 });
   }, []);
 
+  // Esperamos a leer el disco y consultar el servidor para no mostrar el
+  // onboarding un instante a alguien que en realidad ya tiene datos guardados.
+  if (!ready) return <div className="boot" />;
+
+  if (syncConfigured && !signedIn && !skipped) {
+    return <SignIn onDone={() => setSkipped(true)} />;
+  }
+
   if (!profile) {
     return <Onboarding onDone={(p) => setData((prev) => ({ ...prev, profile: p }))} />;
   }
@@ -86,7 +109,10 @@ function Shell() {
     <div className="app">
       <header className="topbar">
         <div>
-          <div className="eyebrow">{head.eyebrow}</div>
+          <div className="eyebrow">
+            {head.eyebrow}
+            <SyncDot />
+          </div>
           <h1>{head.title}</h1>
         </div>
         <button

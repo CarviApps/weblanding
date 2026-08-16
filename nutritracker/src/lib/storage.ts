@@ -34,19 +34,36 @@ function migrate(raw: Partial<AppData>): AppData {
   };
 }
 
-export function loadData(): AppData {
+export interface Persisted {
+  data: AppData;
+  updatedAt: number;
+}
+
+/**
+ * En disco guardamos `{ data, updatedAt }`. Las versiones anteriores guardaban
+ * el AppData pelado, así que si no viene el sobre lo tratamos como datos v1
+ * para no perder nada de lo ya cargado en el teléfono.
+ */
+export function loadPersisted(): Persisted {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return emptyData();
-    return migrate(JSON.parse(raw));
+    if (!raw) return { data: emptyData(), updatedAt: 0 };
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && "data" in parsed && "updatedAt" in parsed) {
+      return {
+        data: migrate(parsed.data as Partial<AppData>),
+        updatedAt: Number(parsed.updatedAt) || 0,
+      };
+    }
+    return { data: migrate(parsed as Partial<AppData>), updatedAt: Date.now() };
   } catch {
-    return emptyData();
+    return { data: emptyData(), updatedAt: 0 };
   }
 }
 
-export function saveData(data: AppData): void {
+export function savePersisted(persisted: Persisted): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(data));
+    localStorage.setItem(KEY, JSON.stringify(persisted));
   } catch {
     // almacenamiento lleno o bloqueado: seguimos en memoria
   }
@@ -64,5 +81,10 @@ export function exportData(data: AppData): void {
 
 export async function importData(file: File): Promise<AppData> {
   const text = await file.text();
-  return migrate(JSON.parse(text));
+  const parsed = JSON.parse(text);
+  // Aceptamos tanto el export nuevo como el viejo.
+  if (parsed && typeof parsed === "object" && "data" in parsed && "updatedAt" in parsed) {
+    return migrate(parsed.data as Partial<AppData>);
+  }
+  return migrate(parsed as Partial<AppData>);
 }

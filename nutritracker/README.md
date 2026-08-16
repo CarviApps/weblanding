@@ -20,11 +20,36 @@ y no comparte código, dependencias ni build con la landing de Carvi que vive en
   14 días, racha de días registrados y semana actual del plan.
 - **Instalable** en el teléfono como PWA, con modo claro y oscuro.
 
-## Dónde se guardan los datos
+## Cuenta y sincronización
 
-Todo queda en el `localStorage` del navegador: no hay servidor, cuenta ni base de datos, y
-nada sale del dispositivo. Como contrapartida, si borrás los datos del sitio o cambiás de
-teléfono se pierde, así que en **Perfil → Tus datos guardados** hay exportar/importar a JSON.
+La app es *offline-first*: siempre escribe primero en el `localStorage` del dispositivo, así
+funciona sin señal. Si además configurás la sincronización, los datos se comparten entre el
+celular y la web con una sola contraseña.
+
+Cómo funciona:
+
+- **Una sola cuenta**, protegida por la contraseña que guardes en `APP_PASSWORD`. No hay
+  registro ni usuarios múltiples: es una app personal.
+- La contraseña vive **sólo en el servidor**, nunca se incluye en el bundle del cliente.
+- Al entrar, el servidor devuelve un token firmado (HMAC-SHA256, 180 días de validez) con una
+  clave derivada de la contraseña. Cambiar la contraseña invalida todos los tokens.
+- Los datos se guardan en Vercel Blob **cifrados con AES-256-GCM**, con clave derivada de la
+  misma contraseña: aunque la URL del blob se filtrara, el archivo no se puede leer.
+- Los cambios se suben con un debounce de 1,5 s y se bajan al abrir la app o al volver a la
+  pestaña. Si editaste en dos aparatos a la vez, **gana la versión guardada más tarde**; el
+  servidor rechaza cualquier escritura más vieja que la que ya tiene.
+
+### Activarla (dos pasos en el panel de Vercel)
+
+1. **Storage → Create Database → Blob**, y conectalo al proyecto `nutritracker`. Eso agrega
+   solo la variable `BLOB_READ_WRITE_TOKEN`.
+2. **Settings → Environment Variables**, agregá `APP_PASSWORD` con la contraseña que quieras
+   (usá una larga; es la única llave de todo). Marcala para todos los entornos.
+
+Volvé a desplegar y listo. Mientras falte cualquiera de las dos, la app sigue funcionando en
+modo local y avisa en **Perfil → Sincronización** que no está activa.
+
+Igual conviene bajar de vez en cuando una copia con **Perfil → Exportar**.
 
 ## Desarrollo
 
